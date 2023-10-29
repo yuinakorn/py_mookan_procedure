@@ -1,9 +1,11 @@
+import pymysql.cursors
 from fastapi import HTTPException
 from dotenv import dotenv_values
 
 config_env = dotenv_values(".env")
 
-def get_procedure_opd(request, connection, token):
+
+def get_procedure_opd(request, token):
     if token is None:
         raise HTTPException(status_code=401, detail="Unauthorized, Please input token")
     elif token != config_env["TOKEN"]:
@@ -16,6 +18,14 @@ def get_procedure_opd(request, connection, token):
     end_date = request.end_date
 
     try:
+        connection = pymysql.connect(host=config_env["DB_HOST"],
+                                     user=config_env["DB_USER"],
+                                     password=config_env["DB_PASSWORD"],
+                                     db=config_env["DB_NAME"],
+                                     charset=config_env["DB_CHARSET"],
+                                     port=int(config_env["DB_PORT"]),
+                                     cursorclass=pymysql.cursors.DictCursor
+                                     )
         with connection.cursor() as cursor:
             sql = f"SELECT COUNT(*) FROM `mookan_procedure_opd` WHERE `HOSPCODE` = %s AND `DATE_SERV` = %s"
             cursor.execute(sql, (hoscode, start_date))
