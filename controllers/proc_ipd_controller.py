@@ -26,8 +26,8 @@ def get_procedure_ipd(request, token):
                                      cursorclass=pymysql.cursors.DictCursor
                                      )
         with connection.cursor() as cursor:
-            sql = f"SELECT COUNT(*) FROM `mookan_procedure_ipd` WHERE `HOSPCODE` = %s AND left(DATETIME_ADMIT,10) = %s"
-            cursor.execute(sql, (hoscode, start_date))
+            sql = f"SELECT COUNT(*) FROM `mookan_procedure_ipd` WHERE `HOSPCODE` = %s AND left(DATETIME_ADMIT,10) BETWEEN %s AND %s"
+            cursor.execute(sql, (hoscode, start_date, end_date))
             result = cursor.fetchone()
             count = result["COUNT(*)"]
             if count == 0:
@@ -41,7 +41,7 @@ def get_procedure_ipd(request, token):
     try:
         with connection.cursor() as cursor:
             sql = f"SELECT i.HOSPCODE,i.hn,i.AN,left(i.DATETIME_ADMIT,10) DATE_SERV,i.WARDSTAY,c.clinicdesc, " \
-                  "i.PROCEDCODE,i.SERVICEPRICE " \
+                  "i.PROCEDCODE,i.nhso_adp_code,i.SERVICEPRICE " \
                   "FROM mookan_procedure_ipd i " \
                   "LEFT JOIN cclinic c ON i.WARDSTAY = c.cliniccode " \
                   "WHERE i.HOSPCODE = %s AND left(i.DATETIME_ADMIT,10) BETWEEN %s AND %s"

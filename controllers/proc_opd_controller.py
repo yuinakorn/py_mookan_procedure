@@ -27,8 +27,8 @@ def get_procedure_opd(request, token):
                                      cursorclass=pymysql.cursors.DictCursor
                                      )
         with connection.cursor() as cursor:
-            sql = f"SELECT COUNT(*) FROM `mookan_procedure_opd` WHERE `HOSPCODE` = %s AND `DATE_SERV` = %s"
-            cursor.execute(sql, (hoscode, start_date))
+            sql = f"SELECT COUNT(*) FROM `mookan_procedure_opd` WHERE `HOSPCODE` = %s AND `DATE_SERV` BETWEEN %s AND %s"
+            cursor.execute(sql, (hoscode, start_date, end_date))
             result = cursor.fetchone()
             count = result["COUNT(*)"]
             if count == 0:
@@ -43,7 +43,7 @@ def get_procedure_opd(request, token):
     try:
         with connection.cursor() as cursor:
             sql = f"SELECT o.HOSPCODE,o.hn,o.seq,o.DATE_SERV,o.CLINIC,c.clinicdesc, " \
-                  "o.PROCEDCODE,o.SERVICEPRICE,o.ER " \
+                  "o.PROCEDCODE,o.nhso_adp_code,o.SERVICEPRICE,o.ER " \
                   "FROM mookan_procedure_opd o " \
                   "LEFT JOIN cclinic c ON o.CLINIC = c.cliniccode " \
                   "WHERE o.HOSPCODE = %s AND o.DATE_SERV BETWEEN %s AND %s"
